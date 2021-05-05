@@ -54,7 +54,9 @@ class Game(models.Model):
     final_score = models.IntegerField(default=0)
     team_a = models.CharField(max_length=100)
     team_b = models.CharField(max_length=100)
-    who_won = models.CharField(max_length=100)
+    team_a_score = models.IntegerField(default=0)
+    team_b_score = models.IntegerField(default=0)
+    who_won = models.CharField(max_length=100, null=True)
 
     def __str__(self):
         return str(self.game_id)

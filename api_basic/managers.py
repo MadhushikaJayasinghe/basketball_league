@@ -16,21 +16,7 @@ class CustomUserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_player(self, email, password, **extra_fields):
-        extra_fields.setdefault('role', 'PLAYER')
-
-        if extra_fields.get('role') != 'PLAYER':
-            raise ValueError('Player must have role of PLAYER')
-        return self.create_user(email, password, **extra_fields)
-
-    def create_coach(self, email, password, **extra_fields):
-        extra_fields.setdefault('role', 'COACH')
-
-        if extra_fields.get('role') != 'COACH':
-            raise ValueError('COACH must have role of COACH')
-        return self.create_user(email, password, **extra_fields)
-
-    def create_admin(self, email, password, **extra_fields):
+    def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('role', 'ADMIN')
 
         if extra_fields.get('role') != 'ADMIN':

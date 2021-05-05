@@ -11,18 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = '__all__'
-
-
-class GameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Game
-        fields = '__all__'
-
-
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -73,10 +61,25 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid login credentials")
 
 
-class UserListSerializer(serializers.ModelSerializer):
+class TeamSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = (
-            'email',
-            'role'
-        )
+        model = Team
+        fields = '__all__'
+
+
+class TeamRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = '__all__'
+
+
+class GameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = '__all__'
+
+
+class GameRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = '__all__'

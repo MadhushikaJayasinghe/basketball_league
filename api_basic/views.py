@@ -1,4 +1,3 @@
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication, BasicAuthentication
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication, BasicAuthentication
 from rest_framework.decorators import api_view, permission_classes
@@ -6,8 +5,9 @@ from rest_framework.decorators import authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import User, Team, Game
-from .serializers import UserSerializer, TeamSerializer, GameSerializer, UserLoginSerializer, UserRegistrationSerializer
+from .models import User, Team, Game, UserTeam
+from .serializers import UserSerializer, TeamSerializer, GameSerializer, UserLoginSerializer, \
+    UserRegistrationSerializer, TeamRegistrationSerializer, GameRegistrationSerializer
 
 
 @api_view(['GET'])
@@ -19,7 +19,6 @@ def get_team_list(request):
 
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def get_game_list(request):
     games = Game.objects.all()
@@ -37,15 +36,29 @@ def get_players_in_team_list(request, team_id):
         players = User.objects.raw(
             'SELECT*FROM user WHERE role = %s AND email IN (SELECT email FROM user_team WHERE team_id = %s)',
             ['PLAYER', team_id])
-    if role == 'COACH':
-        team = Team.objects.raw('SELECT*FROM team WHERE email = s', user.email)
+    elif role == 'COACH':
+        team = UserTeam.objects.raw('SELECT*FROM user_team WHERE email = %s', [user.email])
         if not team:
-            raise_exception = True
+            response = {
+                'success': False,
+                'statusCode': 400,
+                'message': 'Coach is not belongs to this team!',
+
+            }
+            return Response(response)
         else:
             if team.team_id == team_id:
                 players = User.objects.raw(
                     'SELECT*FROM user WHERE role = %s AND email IN (SELECT email FROM user_team WHERE team_id = %s)',
                     ['PLAYER', team_id])
+    else:
+        response = {
+            'success': False,
+            'statusCode': 400,
+            'message': 'User role PLAYER doesnot have access!',
+
+        }
+        return Response(response)
     serializer = UserSerializer(players, many=True)
     return Response(serializer.data)
 
@@ -55,17 +68,30 @@ def get_players_in_team_list(request, team_id):
 def get_best_players_in_team(request, team_id):
     user = request.user
     role = user.role
-    players = []
     if role == 'COACH':
-        team = Team.objects.raw('SELECT*FROM team WHERE email = s', user.email)
+        team = Team.objects.raw('SELECT*FROM user_team WHERE email = %s', user.email)
         if not team:
-            raise_exception = True
+            response = {
+                'success': False,
+                'statusCode': 400,
+                'message': 'User doesnot have a team!',
+
+            }
+            return Response(response)
         else:
             if team.team_id == team_id:
                 players = User.objects.raw(
-                        'SELECT*FROM user WHERE role = %s AND average_score >= 90 AND email IN (SELECT email FROM '
-                        'user_team WHERE team_id = %s)',
-                        ['PLAYER', team_id])
+                    'SELECT*FROM user WHERE role = %s AND average_score >= 90 AND email IN (SELECT email FROM '
+                    'user_team WHERE team_id = %s)',
+                    ['PLAYER', team_id])
+            else:
+                response = {
+                    'success': False,
+                    'statusCode': 400,
+                    'message': 'Coach is not belongs to this team!',
+
+                }
+                return Response(response)
     serializer = UserSerializer(players, many=True)
     return Response(serializer.data)
 
@@ -80,15 +106,35 @@ def get_players_details(request, email, team_id):
         players = User.objects.raw(
             'SELECT*FROM user WHERE email = %s)', [email])
     elif role == 'COACH':
-        team = Team.objects.raw('SELECT*FROM team WHERE email = s', user.email)
+        team = Team.objects.raw('SELECT*FROM user_team WHERE email = %s', user.email)
         if not team:
-            raise_exception = True
+            response = {
+                'success': False,
+                'statusCode': 400,
+                'message': 'User donot have a team team!',
+
+            }
+            return Response(response)
         else:
             if team.team_id == team_id:
                 players = User.objects.raw(
                     'SELECT*FROM user WHERE email = %s)', [email])
+            else:
+                response = {
+                    'success': False,
+                    'statusCode': 400,
+                    'message': 'Coach is not belongs to this team!',
+
+                }
+                return Response(response)
     else:
-        raise_exception = True
+        response = {
+            'success': False,
+            'statusCode': 400,
+            'message': 'User role PLAYER doesnot have access!',
+
+        }
+        return Response(response)
     serializer = UserSerializer(players, many=True)
     return Response(serializer.data)
 
@@ -97,7 +143,6 @@ def get_players_details(request, email, team_id):
 @authentication_classes((SessionAuthentication, TokenAuthentication, BasicAuthentication))
 def user_registration(request):
     serializer = UserRegistrationSerializer(data=request.data)
-    print(request.data)
     valid = serializer.is_valid(raise_exception=True)
 
     if valid:
@@ -132,6 +177,46 @@ def user_login(request):
                 'email': serializer.data['email'],
                 'role': serializer.data['role']
             }
+        }
+
+        return Response(response, status=status_code)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def team_registration(request):
+    serializer = TeamRegistrationSerializer(data=request.data)
+    valid = serializer.is_valid(raise_exception=True)
+
+    if valid:
+        serializer.save()
+        status_code = status.HTTP_201_CREATED
+
+        response = {
+            'success': True,
+            'statusCode': status_code,
+            'message': 'Team successfully registered!',
+            'user': serializer.data
+        }
+
+        return Response(response, status=status_code)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def game_registration(request):
+    serializer = GameRegistrationSerializer(data=request.data)
+    valid = serializer.is_valid(raise_exception=True)
+
+    if valid:
+        serializer.save()
+        status_code = status.HTTP_201_CREATED
+
+        response = {
+            'success': True,
+            'statusCode': status_code,
+            'message': 'Game successfully registered!',
+            'user': serializer.data
         }
 
         return Response(response, status=status_code)
