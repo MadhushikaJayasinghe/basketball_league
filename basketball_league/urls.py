@@ -22,5 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('getAllGames', views.get_game_list, name='games'),
     path('getAllTeams', views.get_team_list, name='teams'),
-    path('getPlayersInTeam/<int:team_id>', views.get_players_in_team_list, name= 'players')
+    path('getPlayersInTeam/<int:team_id>', views.get_players_in_team_list, name='players'),
+    path('getBestPlayersInTeam/<int:team_id>', views.get_best_players_in_team, name='players'),
+    path('register/', views.user_registration, name='players'),
+    path('login/', views.user_login, name='players')
 ]
