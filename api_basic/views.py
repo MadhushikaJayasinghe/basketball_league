@@ -10,6 +10,7 @@ from .serializers import UserSerializer, TeamSerializer, GameSerializer, UserLog
     UserRegistrationSerializer, TeamRegistrationSerializer, GameRegistrationSerializer
 
 
+# This method is used to retrieve all the team list
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_team_list(request):
@@ -18,6 +19,7 @@ def get_team_list(request):
     return Response(serializer.data)
 
 
+# This method is used ti retrieve all the game list
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_game_list(request):
@@ -26,6 +28,7 @@ def get_game_list(request):
     return Response(serializer.data)
 
 
+# This method is used to get players in the team
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_players_in_team_list(request, team_id):
@@ -63,6 +66,7 @@ def get_players_in_team_list(request, team_id):
     return Response(serializer.data)
 
 
+# This method is used to get players who has average score more than 90%
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_best_players_in_team(request, team_id):
@@ -96,6 +100,7 @@ def get_best_players_in_team(request, team_id):
     return Response(serializer.data)
 
 
+# This method get players details in a team
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_players_details(request, email, team_id):
@@ -139,6 +144,7 @@ def get_players_details(request, email, team_id):
     return Response(serializer.data)
 
 
+# This method is used to register new users
 @api_view(['POST'])
 @authentication_classes((SessionAuthentication, TokenAuthentication, BasicAuthentication))
 def user_registration(request):
@@ -159,6 +165,7 @@ def user_registration(request):
         return Response(response, status=status_code)
 
 
+# This method is used to generate new access tokens
 @api_view(['POST'])
 def user_login(request):
     serializer = UserLoginSerializer(data=request.data)
@@ -182,6 +189,7 @@ def user_login(request):
         return Response(response, status=status_code)
 
 
+# This method is used to register new teams
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def team_registration(request):
@@ -202,6 +210,7 @@ def team_registration(request):
         return Response(response, status=status_code)
 
 
+# This method is used to register new games
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def game_registration(request):
