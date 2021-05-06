@@ -73,7 +73,7 @@ class Game(models.Model):
 
 
 class UserTeam(models.Model):
-    email = models.ForeignKey(User, on_delete=models.CASCADE, db_column='email')
+    email = models.EmailField()
     team_id = models.ForeignKey(Team, on_delete=models.CASCADE, db_column='team_id')
 
     class Meta:
@@ -81,7 +81,7 @@ class UserTeam(models.Model):
 
 
 class UserGame(models.Model):
-    email = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.EmailField()
     game_id = models.ForeignKey(Game, on_delete=models.CASCADE)
     user_score = models.IntegerField(default=0)
 

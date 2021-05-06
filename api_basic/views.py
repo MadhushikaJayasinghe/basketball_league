@@ -7,7 +7,8 @@ from rest_framework.response import Response
 
 from .models import User, Team, Game, UserTeam
 from .serializers import UserSerializer, TeamSerializer, GameSerializer, UserLoginSerializer, \
-    UserRegistrationSerializer, TeamRegistrationSerializer, GameRegistrationSerializer, UserTeamSerializer, UserGameSerializer
+    UserRegistrationSerializer, TeamRegistrationSerializer, GameRegistrationSerializer, UserTeamSerializer, \
+    UserGameSerializer
 
 
 # This method is used to retrieve all the team list
@@ -34,13 +35,16 @@ def get_game_list(request):
 def get_players_in_team_list(request, team_id):
     user = request.user
     role = user.role
-    players = []
     if role == 'ADMIN':
         players = User.objects.raw(
             'SELECT*FROM user WHERE role = %s AND email IN (SELECT email FROM user_team WHERE team_id = %s)',
             ['PLAYER', team_id])
+        serializer = UserSerializer(players, many=True)
+        return Response(serializer.data)
     elif role == 'COACH':
-        team = UserTeam.objects.raw('SELECT*FROM user_team WHERE email = %s', [user.email])
+        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email,])
+        print(team)
+        print(int(team_id) == int(team[0].team_id))
         if not team:
             response = {
                 'success': False,
@@ -50,10 +54,21 @@ def get_players_in_team_list(request, team_id):
             }
             return Response(response)
         else:
-            if team.team_id == team_id:
+            if int(team_id) == int(team[0].team_id):
                 players = User.objects.raw(
                     'SELECT*FROM user WHERE role = %s AND email IN (SELECT email FROM user_team WHERE team_id = %s)',
                     ['PLAYER', team_id])
+                print(players)
+                serializer = UserSerializer(players, many=True)
+                return Response(serializer.data)
+            else:
+                response = {
+                    'success': False,
+                    'statusCode': 400,
+                    'message': 'Coach is not belongs to this team!',
+
+                }
+                return Response(response)
     else:
         response = {
             'success': False,
@@ -62,8 +77,6 @@ def get_players_in_team_list(request, team_id):
 
         }
         return Response(response)
-    serializer = UserSerializer(players, many=True)
-    return Response(serializer.data)
 
 
 # This method is used to get players who has average score more than 90%
@@ -73,7 +86,10 @@ def get_best_players_in_team(request, team_id):
     user = request.user
     role = user.role
     if role == 'COACH':
-        team = Team.objects.raw('SELECT*FROM user_team WHERE email = %s', user.email)
+        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email,])
+        print(team[0])
+        print(team_id)
+        print(int(team_id) == int(team[0].team_id))
         if not team:
             response = {
                 'success': False,
@@ -83,11 +99,13 @@ def get_best_players_in_team(request, team_id):
             }
             return Response(response)
         else:
-            if team.team_id == team_id:
+            if int(team_id) == int(team[0].team_id):
                 players = User.objects.raw(
                     'SELECT*FROM user WHERE role = %s AND average_score >= 90 AND email IN (SELECT email FROM '
                     'user_team WHERE team_id = %s)',
                     ['PLAYER', team_id])
+                serializer = UserSerializer(players, many=True)
+                return Response(serializer.data)
             else:
                 response = {
                     'success': False,
@@ -96,9 +114,14 @@ def get_best_players_in_team(request, team_id):
 
                 }
                 return Response(response)
-    serializer = UserSerializer(players, many=True)
-    return Response(serializer.data)
+    else:
+        response = {
+            'success': False,
+            'statusCode': 400,
+            'message': 'User role PLAYER and ADMIN doesnot have access!',
 
+        }
+        return Response(response)
 
 # This method get players details in a team
 @api_view(['GET'])
@@ -111,7 +134,7 @@ def get_players_details(request, email, team_id):
         players = User.objects.raw(
             'SELECT*FROM user WHERE email = %s)', [email])
     elif role == 'COACH':
-        team = Team.objects.raw('SELECT*FROM user_team WHERE email = %s', user.email)
+        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email,])
         if not team:
             response = {
                 'success': False,
@@ -121,9 +144,9 @@ def get_players_details(request, email, team_id):
             }
             return Response(response)
         else:
-            if team.team_id == team_id:
+            if int(team_id) == int(team[0].team_id):
                 players = User.objects.raw(
-                    'SELECT*FROM user WHERE email = %s)', [email])
+                    'SELECT*FROM user WHERE email = %s', [email,])
             else:
                 response = {
                     'success': False,

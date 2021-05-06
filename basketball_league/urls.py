@@ -24,6 +24,7 @@ urlpatterns = [
     path('getAllTeams', views.get_team_list, name='teams'),
     path('getPlayersInTeam/<int:team_id>', views.get_players_in_team_list, name='players'),
     path('getBestPlayersInTeam/<int:team_id>', views.get_best_players_in_team, name='players'),
+    path('getPlayersDetails/<int:team_id>/<str:email>', views.get_players_details, name='player-details'),
     path('register/', views.user_registration, name='user-register'),
     path('login/', views.user_login, name='user-login'),
     path('addGame/', views.game_registration, name='add-game'),

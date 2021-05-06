@@ -1,0 +1,14 @@
+Requirements
+------------
+1) Retrieve all the teams details by users who has ADMIN, COACH and PLAYER permissions
+2) Retrieve all the games details by users who has ADMIN, COACH and PLAYER permissions
+3) Retrieve players in the team by users who has ADMIN permission and who has COACH permission for that particular team
+4) Retrieve players who has average score more than 90 by COACH in that team
+5) retrieve each player details by users who has ADMIN permission and who has COACH permission for that particular team
+6) Login to the system using username(email) and password
+
+Assumptions
+-----------
+1) Each user creating the own account using his/her email.
+2) I  have created APIs for adding data, bt have assumed that all the input data is correct. Therefore all the
+functionality depends on the input data.
