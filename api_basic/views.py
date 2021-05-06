@@ -20,7 +20,7 @@ def get_team_list(request):
     return Response(serializer.data)
 
 
-# This method is used ti retrieve all the game list
+# This method is used to retrieve all the game list
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_game_list(request):
@@ -34,7 +34,7 @@ def get_game_list(request):
 @permission_classes([IsAuthenticated])
 def get_players_in_team_list(request, team_id):
     user = request.user
-    role = user.role
+    role = request.user.role
     if role == 'ADMIN':
         players = User.objects.raw(
             'SELECT*FROM user WHERE role = %s AND email IN (SELECT email FROM user_team WHERE team_id = %s)',
@@ -42,9 +42,7 @@ def get_players_in_team_list(request, team_id):
         serializer = UserSerializer(players, many=True)
         return Response(serializer.data)
     elif role == 'COACH':
-        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email,])
-        print(team)
-        print(int(team_id) == int(team[0].team_id))
+        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email, ])
         if not team:
             response = {
                 'success': False,
@@ -58,7 +56,6 @@ def get_players_in_team_list(request, team_id):
                 players = User.objects.raw(
                     'SELECT*FROM user WHERE role = %s AND email IN (SELECT email FROM user_team WHERE team_id = %s)',
                     ['PLAYER', team_id])
-                print(players)
                 serializer = UserSerializer(players, many=True)
                 return Response(serializer.data)
             else:
@@ -86,10 +83,7 @@ def get_best_players_in_team(request, team_id):
     user = request.user
     role = user.role
     if role == 'COACH':
-        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email,])
-        print(team[0])
-        print(team_id)
-        print(int(team_id) == int(team[0].team_id))
+        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email, ])
         if not team:
             response = {
                 'success': False,
@@ -123,6 +117,7 @@ def get_best_players_in_team(request, team_id):
         }
         return Response(response)
 
+
 # This method get players details in a team
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -134,7 +129,7 @@ def get_players_details(request, email, team_id):
         players = User.objects.raw(
             'SELECT*FROM user WHERE email = %s)', [email])
     elif role == 'COACH':
-        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email,])
+        team = Team.objects.raw('SELECT team_id FROM user_team WHERE email = %s', [user.email, ])
         if not team:
             response = {
                 'success': False,
@@ -146,7 +141,7 @@ def get_players_details(request, email, team_id):
         else:
             if int(team_id) == int(team[0].team_id):
                 players = User.objects.raw(
-                    'SELECT*FROM user WHERE email = %s', [email,])
+                    'SELECT*FROM user WHERE email = %s', [email, ])
             else:
                 response = {
                     'success': False,
@@ -254,7 +249,7 @@ def game_registration(request):
         return Response(response, status=status_code)
 
 
-# This method is used to register new games
+# This method is used to register user team
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def user_team_registration(request):
@@ -277,6 +272,7 @@ def user_team_registration(request):
         return Response(response, status=status_code)
 
 
+# This method is used to register user game
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def user_game_registration(request):

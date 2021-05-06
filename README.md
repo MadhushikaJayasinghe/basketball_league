@@ -1,7 +1,7 @@
 # basketball_league
 Python version = Python 3.7.4
 DJango version = 3.1.4
-Dependencies -> rest_framework, rest_framework.authtoken
+Dependencies -> rest_framework, rest_framework.authtoken, djangorestframework-simplejwt
 
 How to run the project
 ----------------------
