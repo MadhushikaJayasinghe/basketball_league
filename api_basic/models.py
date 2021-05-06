@@ -89,15 +89,6 @@ class UserGame(models.Model):
         db_table = "user_game"
 
 
-# class TeamGame(models.Model):
-#     team_id = models.ForeignKey(Team, on_delete=models.CASCADE)
-#     game_id = models.ForeignKey(Game, on_delete=models.CASCADE)
-#     team_score = models.IntegerField()
-#
-#     class Meta:
-#         db_table = "team_game"
-
-
 class UserStat(models.Model):
     email = models.ForeignKey(User, on_delete=models.CASCADE)
     is_logged_in = models.BooleanField(default=False)
