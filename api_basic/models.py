@@ -1,9 +1,20 @@
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import PermissionsMixin
-from django.contrib.auth.base_user import AbstractBaseUser
 
 from api_basic.managers import CustomUserManager
+
+
+class Team(models.Model):
+    name = models.CharField(max_length=100)
+    team_id = models.AutoField(primary_key=True)
+
+    def __str__(self):
+        return str(self.team_id)
+
+    class Meta:
+        db_table = "team"
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -17,7 +28,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         (ADMIN, 'Admin'),
     ]
     role = models.CharField(max_length=6, choices=ROLE_TYPES, default=PLAYER, )
-    email = models.EmailField(unique=True, default='s')
+    email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     height = models.FloatField(default=0)
@@ -51,29 +62,14 @@ class Game(models.Model):
     game = models.CharField(max_length=6, choices=GAME_TYPES, default=SG, )
     game_id = models.AutoField(primary_key=True)
     is_done = models.BooleanField(default=False)
-    final_score = models.IntegerField(default=0)
-    team_a = models.CharField(max_length=100)
-    team_b = models.CharField(max_length=100)
-    team_a_score = models.IntegerField(default=0)
-    team_b_score = models.IntegerField(default=0)
-    who_won = models.CharField(max_length=100, null=True)
+    team_id = models.ManyToManyField(Team)
+    team_score = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.game_id)
 
     class Meta:
         db_table = "game"
-
-
-class Team(models.Model):
-    name = models.CharField(max_length=100)
-    team_id = models.AutoField(primary_key=True)
-
-    def __str__(self):
-        return str(self.team_id)
-
-    class Meta:
-        db_table = "team"
 
 
 class UserTeam(models.Model):
@@ -87,19 +83,19 @@ class UserTeam(models.Model):
 class UserGame(models.Model):
     email = models.ForeignKey(User, on_delete=models.CASCADE)
     game_id = models.ForeignKey(Game, on_delete=models.CASCADE)
-    user_score = models.IntegerField()
+    user_score = models.IntegerField(default=0)
 
     class Meta:
         db_table = "user_game"
 
 
-class TeamGame(models.Model):
-    team_id = models.ForeignKey(Team, on_delete=models.CASCADE)
-    game_id = models.ForeignKey(Game, on_delete=models.CASCADE)
-    team_score = models.IntegerField()
-
-    class Meta:
-        db_table = "team_game"
+# class TeamGame(models.Model):
+#     team_id = models.ForeignKey(Team, on_delete=models.CASCADE)
+#     game_id = models.ForeignKey(Game, on_delete=models.CASCADE)
+#     team_score = models.IntegerField()
+#
+#     class Meta:
+#         db_table = "team_game"
 
 
 class UserStat(models.Model):

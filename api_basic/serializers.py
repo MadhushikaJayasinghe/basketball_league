@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from rest_framework import serializers
-from .models import User, Team, Game
+from .models import User, Team, Game, UserTeam, UserGame
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['email', 'password', 'role', 'first_name', 'last_name']
 
     def create(self, validated_data):
         auth_user = User.objects.create_user(**validated_data)
@@ -82,4 +82,16 @@ class GameSerializer(serializers.ModelSerializer):
 class GameRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
+        fields = '__all__'
+
+
+class UserTeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTeam
+        fields = ['team_id', 'email']
+
+
+class UserGameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserGame
         fields = '__all__'

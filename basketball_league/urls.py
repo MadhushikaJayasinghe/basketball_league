@@ -27,5 +27,7 @@ urlpatterns = [
     path('register/', views.user_registration, name='user-register'),
     path('login/', views.user_login, name='user-login'),
     path('addGame/', views.game_registration, name='add-game'),
-    path('addTeam/', views.team_registration, name='add-team')
+    path('addTeam/', views.team_registration, name='add-team'),
+    path('userTeam/', views.user_team_registration, name='add-user-team'),
+    path('userGame/', views.user_game_registration, name='add-user-team')
 ]

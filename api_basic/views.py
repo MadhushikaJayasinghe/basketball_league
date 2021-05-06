@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from .models import User, Team, Game, UserTeam
 from .serializers import UserSerializer, TeamSerializer, GameSerializer, UserLoginSerializer, \
-    UserRegistrationSerializer, TeamRegistrationSerializer, GameRegistrationSerializer
+    UserRegistrationSerializer, TeamRegistrationSerializer, GameRegistrationSerializer, UserTeamSerializer, UserGameSerializer
 
 
 # This method is used to retrieve all the team list
@@ -225,6 +225,49 @@ def game_registration(request):
             'success': True,
             'statusCode': status_code,
             'message': 'Game successfully registered!',
+            'user': serializer.data
+        }
+
+        return Response(response, status=status_code)
+
+
+# This method is used to register new games
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def user_team_registration(request):
+    user_id = request.user.id
+
+    serializer = UserTeamSerializer(data=request.data)
+    valid = serializer.is_valid(raise_exception=True)
+
+    if valid:
+        serializer.save()
+        status_code = status.HTTP_201_CREATED
+
+        response = {
+            'success': True,
+            'statusCode': status_code,
+            'message': 'User team successfully registered!',
+            'user': serializer.data
+        }
+
+        return Response(response, status=status_code)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def user_game_registration(request):
+    serializer = UserGameSerializer(data=request.data)
+    valid = serializer.is_valid(raise_exception=True)
+
+    if valid:
+        serializer.save()
+        status_code = status.HTTP_201_CREATED
+
+        response = {
+            'success': True,
+            'statusCode': status_code,
+            'message': 'User game successfully registered!',
             'user': serializer.data
         }
 
